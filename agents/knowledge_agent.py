@@ -9,7 +9,7 @@ def needs_search(message: str) -> bool:
 
 
 def prepare_knowledge_messages(message: str, session_id: str) -> list[dict[str, str]]:
-    add_message(session_id, "user", message)x
+    add_message(session_id, "user", message)
     history = get_history(session_id)
 
     if needs_search(message):
