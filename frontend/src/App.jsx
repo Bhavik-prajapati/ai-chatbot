@@ -84,6 +84,7 @@ export default function App() {
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [status, setStatus] = useState('Ready');
+  const [activity, setActivity] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -136,6 +137,7 @@ export default function App() {
     setActiveSessionId(null);
     setMessages([]);
     setStatus('Ready');
+    setActivity('');
     setSidebarOpen(false);
   }
 
@@ -196,6 +198,12 @@ export default function App() {
       return;
     }
 
+    if (payload.type === 'status') {
+      setStatus(payload.message || 'Working...');
+      setActivity(payload.message || '');
+      return;
+    }
+
     if (payload.type === 'chunk') {
       setMessages((current) => {
         const next = [...current];
@@ -215,6 +223,7 @@ export default function App() {
       setMessages(payload.session.messages || []);
       updateSessionSummary(payload.session_summary);
       setStatus(`Completed with ${payload.agent}`);
+      setActivity('');
       setIsStreaming(false);
     }
   }
@@ -247,6 +256,7 @@ export default function App() {
     setMessages((current) => [...current, optimisticUser, optimisticAssistant]);
     setInput('');
     setStatus('Thinking');
+    setActivity('');
     setIsStreaming(true);
     resizeTextarea('');
 
@@ -289,6 +299,7 @@ export default function App() {
       }
     } catch (error) {
       setStatus(error.message);
+      setActivity('');
       setMessages((current) => current.slice(0, -1));
       setInput(content);
     } finally {
@@ -416,6 +427,9 @@ export default function App() {
                     <span>{message.role === 'user' ? 'You' : 'Nova'}</span>
                     <span>{formatTime(message.created_at || new Date().toISOString())}</span>
                   </div>
+                  {message.role === 'assistant' && message.streaming && activity ? (
+                    <div className="message-activity">{activity}</div>
+                  ) : null}
                   <MessageContent content={message.content || (message.streaming ? '...' : '')} />
                 </article>
               ))}

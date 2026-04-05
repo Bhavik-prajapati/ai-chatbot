@@ -8,6 +8,7 @@ A production-ready AI chatbot built with Python that uses **multi-agent architec
 
 
 ![Chat UI](./screenshots/chat.png)
+![Searching Response](./screenshots/searching.png)
 ![Streaming Response](./screenshots/stream.png)
 ![API Docs](./screenshots/question.png)
 

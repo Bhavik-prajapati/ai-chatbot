@@ -260,6 +260,13 @@ button {
   letter-spacing: 0.08em;
 }
 
+.message-activity {
+  margin-bottom: 10px;
+  color: var(--accent);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
 .message-bubble p {
   margin: 0;
   white-space: pre-wrap;

@@ -7,7 +7,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from agents.code_agent import handle_code_query, stream_code_query
-from agents.knowledge_agent import handle_knowledge_query, stream_knowledge_query
+from agents.knowledge_agent import handle_knowledge_query, needs_search, stream_knowledge_query
 from agents.router import route_query
 from memory.store import (
     add_message,
@@ -60,11 +60,6 @@ def _build_chat_payload(message: str, session_id: str):
 
 def _stream_chat_payload(message: str, session_id: str) -> Iterator[str]:
     agent_type = route_query(message)
-    if agent_type == "code":
-        chunks = stream_code_query(message, session_id)
-    else:
-        chunks = stream_knowledge_query(message, session_id)
-
     full_response = ""
     yield json.dumps(
         {
@@ -73,6 +68,20 @@ def _stream_chat_payload(message: str, session_id: str) -> Iterator[str]:
             "session": get_session_summary(session_id),
         }
     ) + "\n"
+
+    if agent_type == "knowledge" and needs_search(message):
+        yield json.dumps(
+            {
+                "type": "status",
+                "stage": "web_search",
+                "message": "Searching the web...",
+            }
+        ) + "\n"
+
+    if agent_type == "code":
+        chunks = stream_code_query(message, session_id)
+    else:
+        chunks = stream_knowledge_query(message, session_id)
 
     for chunk in chunks:
         full_response += chunk
